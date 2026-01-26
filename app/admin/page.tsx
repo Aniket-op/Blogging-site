@@ -28,15 +28,23 @@ export default function AdminPage() {
     setError('')
     setIsSubmitting(true)
 
-    const success = await login(email, password)
-    
-    if (!success) {
-      setError('Invalid email or password')
+    try {
+      await login(email, password)
+    } catch (err: any) {
+      console.error(err)
+      if (err.code === 'auth/configuration-not-found') {
+        setError('Email/Password login is not enabled in Firebase Console.')
+      } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+        setError('Invalid email or password.')
+      } else if (err.code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Please try again later.')
+      } else {
+        setError('Failed to log in. Please check your connection or credentials.')
+      }
+    } finally {
+      setIsSubmitting(false)
     }
-    
-    setIsSubmitting(false)
   }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
       <Card className="w-full max-w-md">
@@ -56,7 +64,7 @@ export default function AdminPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -68,7 +76,7 @@ export default function AdminPage() {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -80,10 +88,10 @@ export default function AdminPage() {
                 required
               />
             </div>
-            
-            <Button 
-              type="submit" 
-              className="w-full" 
+
+            <Button
+              type="submit"
+              className="w-full"
               disabled={isSubmitting || isLoading}
             >
               {isSubmitting ? (
@@ -95,10 +103,11 @@ export default function AdminPage() {
                 'Sign In'
               )}
             </Button>
-            
-            <p className="text-center text-sm text-muted-foreground mt-4">
-              Demo credentials: admin@example.com / admin123
-            </p>
+
+
+            <div className="pt-4 border-t mt-4">
+              {/* Seeding button removed */}
+            </div>
           </form>
         </CardContent>
       </Card>

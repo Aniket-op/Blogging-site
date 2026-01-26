@@ -2,11 +2,26 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { BlogCard } from '@/components/blog/blog-card'
 import { Badge } from '@/components/ui/badge'
-import { getPublishedBlogs, categories, formatDate } from '@/lib/mock-data'
+import { getPublishedBlogs } from '@/lib/db/blogs'
+import { categories, formatDate } from '@/lib/mock-data'
 import Link from 'next/link'
 
-export default function HomePage() {
-  const blogs = getPublishedBlogs()
+export default async function HomePage() {
+  const blogs = await getPublishedBlogs()
+
+  if (!blogs || blogs.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 container mx-auto px-4 py-8 text-center text-muted-foreground">
+          <h2 className="text-xl font-semibold mt-10">No posts found</h2>
+          <p>Please check your database connection or seed some data.</p>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
   const featuredBlog = blogs[0]
   const recentBlogs = blogs.slice(1, 4)
   const otherBlogs = blogs.slice(4)
@@ -14,7 +29,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1">
         <section className="container mx-auto px-4 py-8">
           <div className="grid lg:grid-cols-3 gap-8">
@@ -24,7 +39,7 @@ export default function HomePage() {
               </h2>
               <BlogCard blog={featuredBlog} featured />
             </div>
-            
+
             <div className="lg:col-span-1">
               <h2 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wider">
                 Recent Posts

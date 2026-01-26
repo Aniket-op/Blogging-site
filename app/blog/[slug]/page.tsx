@@ -6,7 +6,8 @@ import { Footer } from '@/components/layout/footer'
 import { ContentRenderer } from '@/components/blog/content-renderer'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { getBlogBySlug, getPublishedBlogs, formatDate } from '@/lib/mock-data'
+import { getBlogBySlug, getPublishedBlogs } from '@/lib/db/blogs'
+import { formatDate } from '@/lib/mock-data'
 import { ArrowLeft } from 'lucide-react'
 
 interface BlogPageProps {
@@ -15,20 +16,21 @@ interface BlogPageProps {
 
 export default async function BlogPage({ params }: BlogPageProps) {
   const { slug } = await params
-  const blog = getBlogBySlug(slug)
+  const blog = await getBlogBySlug(slug)
 
   if (!blog || blog.status !== 'published') {
     notFound()
   }
 
-  const relatedBlogs = getPublishedBlogs()
+  const allBlogs = await getPublishedBlogs()
+  const relatedBlogs = allBlogs
     .filter(b => b.id !== blog.id && b.category === blog.category)
     .slice(0, 3)
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1">
         <article>
           <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
@@ -66,7 +68,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
                 Back to Home
               </Button>
             </Link>
-            
+
             <ContentRenderer blocks={blog.content} />
           </div>
         </article>
