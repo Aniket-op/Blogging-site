@@ -17,6 +17,7 @@ import type { Blog, ContentBlock } from '@/lib/types'
 import { categories } from '@/lib/mock-data'
 import { ArrowLeft, Save, Send, Loader2 } from 'lucide-react'
 import { BlockEditorCanvas } from './block-editor-canvas'
+import { ImageUpload } from '@/components/admin/image-upload'
 
 interface BlogEditorProps {
   blog: Blog | null
@@ -54,7 +55,7 @@ export function BlogEditor({ blog, onBack }: BlogEditorProps) {
     if (!title.trim()) return
 
     setIsSaving(true)
-    
+
     // Simulate save delay
     await new Promise(resolve => setTimeout(resolve, 300))
 
@@ -178,12 +179,16 @@ export function BlogEditor({ blog, onBack }: BlogEditorProps) {
 
             <div className="space-y-2">
               <Label htmlFor="coverImage">Cover Image URL</Label>
-              <Input
-                id="coverImage"
-                value={coverImage}
-                onChange={e => setCoverImage(e.target.value)}
-                placeholder="https://..."
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="coverImage"
+                  value={coverImage}
+                  onChange={e => setCoverImage(e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                <ImageUpload onUploadComplete={setCoverImage} initialImage={coverImage} />
+              </div>
             </div>
           </div>
 
