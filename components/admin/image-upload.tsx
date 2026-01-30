@@ -10,9 +10,13 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ImagePlus, Loader2, Crop as CropIcon } from 'lucide-react'
 
+import { cn } from '@/lib/utils'
+
 interface ImageUploadProps {
     onUploadComplete: (url: string) => void
     initialImage?: string
+    className?: string
+    compact?: boolean
 }
 
 const getCroppedImg = (imageSrc: string, pixelCrop: Area): Promise<Blob> => {
@@ -55,7 +59,7 @@ const getCroppedImg = (imageSrc: string, pixelCrop: Area): Promise<Blob> => {
     })
 }
 
-export function ImageUpload({ onUploadComplete, initialImage }: ImageUploadProps) {
+export function ImageUpload({ onUploadComplete, initialImage, className, compact = false }: ImageUploadProps) {
     const [imageSrc, setImageSrc] = useState<string | null>(null)
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
     const [zoom, setZoom] = useState(1)
@@ -135,12 +139,12 @@ export function ImageUpload({ onUploadComplete, initialImage }: ImageUploadProps
     }
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center gap-4">
-                <Button variant="outline" asChild>
+        <div className={cn(compact ? "inline-block" : "space-y-4", className)}>
+            <div className={cn("flex items-center", compact ? "gap-2" : "gap-4")}>
+                <Button variant="outline" asChild size={compact ? "icon" : "default"}>
                     <label className="cursor-pointer">
-                        <ImagePlus className="w-4 h-4 mr-2" />
-                        Upload Image
+                        <ImagePlus className="w-4 h-4" />
+                        {!compact && <span className="ml-2">Upload Image</span>}
                         <input
                             type="file"
                             className="hidden"
@@ -149,7 +153,7 @@ export function ImageUpload({ onUploadComplete, initialImage }: ImageUploadProps
                         />
                     </label>
                 </Button>
-                {initialImage && !imageSrc && (
+                {initialImage && !imageSrc && !compact && (
                     <span className="text-sm text-muted-foreground">Current image active</span>
                 )}
             </div>

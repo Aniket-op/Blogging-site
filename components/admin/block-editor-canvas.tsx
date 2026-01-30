@@ -31,6 +31,7 @@ import {
   AlignCenter,
   AlignRight,
 } from 'lucide-react'
+import { ImageUpload } from '@/components/admin/image-upload'
 
 interface BlockEditorCanvasProps {
   content: ContentBlock[]
@@ -153,7 +154,7 @@ export function BlockEditorCanvas({ content, onChange }: BlockEditorCanvasProps)
               <GripVertical className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
-          
+
           <BlockEditor
             block={block}
             onUpdate={updates => updateBlock(index, updates)}
@@ -162,7 +163,7 @@ export function BlockEditorCanvas({ content, onChange }: BlockEditorCanvasProps)
           />
         </div>
       ))}
-      
+
       <Button
         variant="ghost"
         size="sm"
@@ -223,7 +224,7 @@ function BlockEditor({ block, onUpdate, onDelete, onAddAfter }: BlockEditorProps
       setShowCommands(false)
       setCommandFilter('')
     }
-    
+
     if ('content' in block) {
       onUpdate({ content: value })
     }
@@ -238,7 +239,7 @@ function BlockEditor({ block, onUpdate, onDelete, onAddAfter }: BlockEditorProps
 
   return (
     <div className="relative group">
-      <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute -right-12 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
         <Button
           variant="ghost"
           size="icon"
@@ -388,6 +389,7 @@ function ImageBlockEditor({ block, onUpdate }: ImageBlockEditorProps) {
           placeholder="Image URL..."
           className="flex-1"
         />
+        <ImageUpload compact onUploadComplete={(url) => onUpdate({ src: url })} />
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" size="icon">
@@ -397,7 +399,7 @@ function ImageBlockEditor({ block, onUpdate }: ImageBlockEditorProps) {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-2">
-            <div className="flex gap-1">
+            <div className="flex-1 gap-1">
               <Button
                 variant={block.align === 'left' ? 'default' : 'ghost'}
                 size="icon"
