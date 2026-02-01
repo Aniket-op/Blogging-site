@@ -7,7 +7,7 @@ import { ContentRenderer } from '@/components/blog/content-renderer'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getBlogBySlug, getPublishedBlogs } from '@/lib/db/blogs'
-import { formatDate } from '@/lib/mock-data'
+import { formatDate } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
 
 interface BlogPageProps {

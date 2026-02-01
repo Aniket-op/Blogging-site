@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import type { Blog, ContentBlock } from '@/lib/types'
-import { categories } from '@/lib/mock-data'
 import { ArrowLeft, Save, Send, Loader2 } from 'lucide-react'
 import { BlockEditorCanvas } from './block-editor-canvas'
 import { ImageUpload } from '@/components/admin/image-upload'
@@ -25,9 +24,9 @@ interface BlogEditorProps {
 }
 
 export function BlogEditor({ blog, onBack }: BlogEditorProps) {
-  const { createBlog, updateBlog, updateBlogContent } = useBlogStore()
+  const { createBlog, updateBlog, updateBlogContent, categories } = useBlogStore()
   const [title, setTitle] = useState(blog?.title || '')
-  const [category, setCategory] = useState(blog?.category || categories[0].name)
+  const [category, setCategory] = useState(blog?.category || (categories[0]?.name || ''))
   const [coverImage, setCoverImage] = useState(blog?.coverImage || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&h=600&fit=crop')
   const [content, setContent] = useState<ContentBlock[]>(
     blog?.content || [{ id: '1', type: 'paragraph', content: '' }]

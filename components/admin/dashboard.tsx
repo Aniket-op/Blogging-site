@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useBlogStore } from '@/lib/blog-store'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -12,6 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +25,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { BlogEditor } from '@/components/admin/blog-editor'
-import { formatDate } from '@/lib/mock-data'
+import { formatDate } from '@/lib/utils'
 import type { Blog } from '@/lib/types'
 import {
   FileText,
@@ -43,11 +45,23 @@ type View = 'dashboard' | 'editor'
 
 export function AdminDashboard() {
   const { user, logout } = useAuth()
-  const { blogs, deleteBlog, updateBlog } = useBlogStore()
+  const { blogs, categories, deleteBlog, updateBlog, addCategory, deleteCategory } = useBlogStore()
   const [view, setView] = useState<View>('dashboard')
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [blogToDelete, setBlogToDelete] = useState<Blog | null>(null)
+  const [newCategory, setNewCategory] = useState('')
+
+  const handleAddCategory = async () => {
+    if (!newCategory.trim()) return
+    try {
+      await addCategory(newCategory.trim())
+      setNewCategory('')
+    } catch (error) {
+      console.error("Failed to add category", error)
+      // Ideally show a toast here
+    }
+  }
 
   const publishedCount = blogs.filter(b => b.status === 'published').length
   const draftCount = blogs.filter(b => b.status === 'draft').length
@@ -159,6 +173,51 @@ export function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">{draftCount}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Categories</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {categories.map(cat => (
+                  <Badge key={cat.id} variant="secondary" className="pl-3 pr-1 py-1 flex items-center gap-1">
+                    {cat.name}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-4 w-4 rounded-full hover:bg-muted-foreground/20"
+                      onClick={() => deleteCategory(cat.id!)}
+                    >
+                      <span className="sr-only">Remove</span>
+                      <span aria-hidden="true">&times;</span>
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+              {categories.length < 5 ? (
+                <div className="flex gap-2 max-w-sm">
+                  <Input
+                    placeholder="New category name"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleAddCategory()
+                    }}
+                  />
+                  <Button onClick={handleAddCategory} disabled={!newCategory.trim()}>
+                    Add
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Maximum 5 categories allowed. Remove one to add more.
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>

@@ -2,7 +2,8 @@ import { notFound } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { BlogCard } from '@/components/blog/blog-card'
-import { getBlogsByCategory, categories } from '@/lib/mock-data'
+import { getBlogsByCategory } from '@/lib/db/blogs'
+import { getAllCategories } from '@/lib/db/categories'
 
 interface CategoryPageProps {
   params: Promise<{ name: string }>
@@ -11,17 +12,24 @@ interface CategoryPageProps {
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { name } = await params
   const decodedName = decodeURIComponent(name)
-  const blogs = getBlogsByCategory(decodedName)
-  const category = categories.find(c => c.name === decodedName)
+
+  // Fetch categories first to find the correct casing
+  const categories = await getAllCategories()
+
+  // Find category case-insensitively
+  const category = categories.find(c => c.name.toLowerCase() === decodedName.toLowerCase())
 
   if (!category) {
     notFound()
   }
 
+  // Fetch blogs using the correct category name from DB
+  const blogs = await getBlogsByCategory(category.name)
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1">
         <section className="bg-primary/10 py-12">
           <div className="container mx-auto px-4">

@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import type { Blog } from '@/lib/types'
-import { formatDate } from '@/lib/mock-data'
+import { formatDate } from '@/lib/utils'
 
 interface BlogCardProps {
   blog: Blog

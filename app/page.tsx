@@ -3,11 +3,15 @@ import { Footer } from '@/components/layout/footer'
 import { BlogCard } from '@/components/blog/blog-card'
 import { Badge } from '@/components/ui/badge'
 import { getPublishedBlogs } from '@/lib/db/blogs'
-import { categories, formatDate } from '@/lib/mock-data'
+import { getAllCategories } from '@/lib/db/categories'
+import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 
 export default async function HomePage() {
-  const blogs = await getPublishedBlogs()
+  const [blogs, categories] = await Promise.all([
+    getPublishedBlogs(),
+    getAllCategories()
+  ])
 
   if (!blogs || blogs.length === 0) {
     return (

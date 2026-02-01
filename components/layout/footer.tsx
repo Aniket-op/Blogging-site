@@ -15,12 +15,6 @@ export function Footer() {
             <Link href="/" className="hover:text-primary transition-colors">
               Home
             </Link>
-            <Link href="/category/Lifestyle" className="hover:text-primary transition-colors">
-              Lifestyle
-            </Link>
-            <Link href="/category/Philosophy" className="hover:text-primary transition-colors">
-              Philosophy
-            </Link>
           </nav>
           <p className="text-sm text-muted-foreground">
             {new Date().getFullYear()} Thoughtful Words. All rights reserved.

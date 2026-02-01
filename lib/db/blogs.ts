@@ -61,6 +61,22 @@ export async function getBlogBySlug(slug: string): Promise<Blog | undefined> {
     return docToBlog(doc);
 }
 
+export async function getBlogsByCategory(category: string): Promise<Blog[]> {
+    try {
+        const q = query(
+            collection(db, BLOGS_COLLECTION),
+            where('category', '==', category),
+            where('status', '==', 'published')
+        );
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(docToBlog)
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } catch (error) {
+        console.error("Error fetching blogs by category:", error);
+        return [];
+    }
+}
+
 export async function createBlog(blog: Omit<Blog, 'id'>) {
     return addDoc(collection(db, BLOGS_COLLECTION), blog);
 }
