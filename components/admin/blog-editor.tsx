@@ -71,9 +71,9 @@ export function BlogEditor({ blog, onBack }: BlogEditorProps) {
     }
 
     if (blog) {
-      updateBlog(blog.id, blogData)
+      await updateBlog(blog.id, blogData)
     } else {
-      createBlog(blogData)
+      await createBlog(blogData)
     }
 
     setLastSaved(new Date())
@@ -106,8 +106,8 @@ export function BlogEditor({ blog, onBack }: BlogEditorProps) {
     }
   }
 
-  const handlePublish = () => {
-    savePost('published')
+  const handlePublish = async () => {
+    await savePost('published')
     setTimeout(onBack, 500)
   }
 

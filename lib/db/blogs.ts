@@ -10,7 +10,8 @@ import {
     orderBy,
     Timestamp,
     addDoc,
-    updateDoc
+    updateDoc,
+    deleteDoc
 } from 'firebase/firestore';
 import type { Blog } from '../types';
 
@@ -67,5 +68,10 @@ export async function createBlog(blog: Omit<Blog, 'id'>) {
 export async function updateBlog(id: string, data: Partial<Blog>) {
     const docRef = doc(db, BLOGS_COLLECTION, id);
     await updateDoc(docRef, data);
+}
+
+export async function deleteBlog(id: string) {
+    const docRef = doc(db, BLOGS_COLLECTION, id);
+    await deleteDoc(docRef);
 }
 
