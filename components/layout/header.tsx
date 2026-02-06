@@ -6,15 +6,22 @@ import { Button } from '@/components/ui/button'
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { Category } from '@/lib/types'
 
-const navLinks = [
-  { href: '/', label: 'Home' },
-  { href: '/category/Lifestyle', label: 'Lifestyle' },
-  { href: '/category/Philosophy', label: 'Philosophy' },
-  { href: '/category/Productivity', label: 'Productivity' },
-]
 
-export function Header() {
+
+interface HeaderProps {
+  categories?: Category[]
+}
+
+export function Header({ categories = [] }: HeaderProps) {
+  const navLinks = [
+    { href: '/', label: 'Home' },
+    ...categories.map(cat => ({
+      href: `/category/${cat.name}`,
+      label: cat.name
+    }))
+  ]
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
 

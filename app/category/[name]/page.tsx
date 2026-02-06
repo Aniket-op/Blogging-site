@@ -28,7 +28,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header categories={categories} />
 
       <main className="flex-1">
         <section className="bg-primary/10 py-12">

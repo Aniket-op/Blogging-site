@@ -7,6 +7,7 @@ import { ContentRenderer } from '@/components/blog/content-renderer'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getBlogBySlug, getPublishedBlogs } from '@/lib/db/blogs'
+import { getAllCategories } from '@/lib/db/categories'
 import { formatDate } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
 
@@ -16,20 +17,24 @@ interface BlogPageProps {
 
 export default async function BlogPage({ params }: BlogPageProps) {
   const { slug } = await params
-  const blog = await getBlogBySlug(slug)
+
+  const [blog, categories, allBlogs] = await Promise.all([
+    getBlogBySlug(slug),
+    getAllCategories(),
+    getPublishedBlogs()
+  ])
 
   if (!blog || blog.status !== 'published') {
     notFound()
   }
 
-  const allBlogs = await getPublishedBlogs()
   const relatedBlogs = allBlogs
     .filter(b => b.id !== blog.id && b.category === blog.category)
     .slice(0, 3)
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header categories={categories} />
 
       <main className="flex-1">
         <article>

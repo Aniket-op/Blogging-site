@@ -16,7 +16,7 @@ export default async function HomePage() {
   if (!blogs || blogs.length === 0) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header />
+        <Header categories={categories} />
         <main className="flex-1 container mx-auto px-4 py-8 text-center text-muted-foreground">
           <h2 className="text-xl font-semibold mt-10">No posts found</h2>
           <p>Please check your database connection or seed some data.</p>
@@ -32,7 +32,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header categories={categories} />
 
       <main className="flex-1">
         <section className="container mx-auto px-4 py-8">
