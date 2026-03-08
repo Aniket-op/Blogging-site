@@ -54,11 +54,20 @@ export async function getPublishedBlogs(): Promise<Blog[]> {
 }
 
 export async function getBlogBySlug(slug: string): Promise<Blog | undefined> {
-    const q = query(collection(db, BLOGS_COLLECTION), where('slug', '==', slug));
-    const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) return undefined;
-    const doc = querySnapshot.docs[0];
-    return docToBlog(doc);
+    try {
+        const q = query(
+            collection(db, BLOGS_COLLECTION),
+            where('slug', '==', slug),
+            where('status', '==', 'published')
+        );
+        const querySnapshot = await getDocs(q);
+        if (querySnapshot.empty) return undefined;
+        const doc = querySnapshot.docs[0];
+        return docToBlog(doc);
+    } catch (error) {
+        console.error("Error fetching blog by slug:", error);
+        return undefined;
+    }
 }
 
 export async function getBlogsByCategory(category: string): Promise<Blog[]> {

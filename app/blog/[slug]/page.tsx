@@ -1,6 +1,10 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import { use } from 'react'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ContentRenderer } from '@/components/blog/content-renderer'
@@ -9,28 +13,63 @@ import { Button } from '@/components/ui/button'
 import { getBlogBySlug, getPublishedBlogs } from '@/lib/db/blogs'
 import { getAllCategories } from '@/lib/db/categories'
 import { formatDate } from '@/lib/utils'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
+import type { Blog, Category } from '@/lib/types'
 
 interface BlogPageProps {
   params: Promise<{ slug: string }>
 }
 
-export default async function BlogPage({ params }: BlogPageProps) {
-  const { slug } = await params
+export default function BlogPage({ params }: BlogPageProps) {
+  const { slug } = use(params)
+  const [blog, setBlog] = useState<Blog | null>(null)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [relatedBlogs, setRelatedBlogs] = useState<Blog[]>([])
+  const [loading, setLoading] = useState(true)
+  const [notFoundState, setNotFoundState] = useState(false)
 
-  const [blog, categories, allBlogs] = await Promise.all([
-    getBlogBySlug(slug),
-    getAllCategories(),
-    getPublishedBlogs()
-  ])
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [fetchedBlog, fetchedCategories, allBlogs] = await Promise.all([
+          getBlogBySlug(slug),
+          getAllCategories(),
+          getPublishedBlogs()
+        ])
 
-  if (!blog || blog.status !== 'published') {
+        if (!fetchedBlog || fetchedBlog.status !== 'published') {
+          setNotFoundState(true)
+          return
+        }
+
+        setBlog(fetchedBlog)
+        setCategories(fetchedCategories)
+        setRelatedBlogs(
+          allBlogs
+            .filter(b => b.id !== fetchedBlog.id && b.category === fetchedBlog.category)
+            .slice(0, 3)
+        )
+      } catch (error) {
+        console.error('Error fetching blog:', error)
+        setNotFoundState(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [slug])
+
+  if (notFoundState) {
     notFound()
   }
 
-  const relatedBlogs = allBlogs
-    .filter(b => b.id !== blog.id && b.category === blog.category)
-    .slice(0, 3)
+  if (loading || !blog) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

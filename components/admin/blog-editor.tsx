@@ -35,6 +35,11 @@ export function BlogEditor({ blog, onBack }: BlogEditorProps) {
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null)
 
+  // Track the created blog ID so subsequent saves update instead of creating duplicates
+  const createdBlogId = useRef<string | null>(blog?.id || null)
+  // Guard to prevent overlapping saves
+  const savingRef = useRef(false)
+
   const generateSlug = (text: string) => {
     return text
       .toLowerCase()
@@ -52,40 +57,51 @@ export function BlogEditor({ blog, onBack }: BlogEditorProps) {
 
   const savePost = useCallback(async (status: 'draft' | 'published' = 'draft') => {
     if (!title.trim()) return
+    // Prevent overlapping saves
+    if (savingRef.current) return
+    savingRef.current = true
 
     setIsSaving(true)
 
-    // Simulate save delay
-    await new Promise(resolve => setTimeout(resolve, 300))
+    try {
+      const blogData = {
+        title,
+        slug: generateSlug(title),
+        excerpt: generateExcerpt(content),
+        content,
+        coverImage,
+        category,
+        status,
+        author: 'Admin',
+      }
 
-    const blogData = {
-      title,
-      slug: generateSlug(title),
-      excerpt: generateExcerpt(content),
-      content,
-      coverImage,
-      category,
-      status,
-      author: 'Admin',
+      if (blog || createdBlogId.current) {
+        // Update the existing blog (either passed as prop or created earlier in this session)
+        const id = blog?.id || createdBlogId.current!
+        await updateBlog(id, blogData)
+      } else {
+        // First-time creation — store the ID so we never create again
+        const newBlog = await createBlog(blogData)
+        createdBlogId.current = newBlog.id
+      }
+
+      setLastSaved(new Date())
+    } catch (error) {
+      console.error('Failed to save post:', error)
+    } finally {
+      setIsSaving(false)
+      savingRef.current = false
     }
-
-    if (blog) {
-      await updateBlog(blog.id, blogData)
-    } else {
-      await createBlog(blogData)
-    }
-
-    setLastSaved(new Date())
-    setIsSaving(false)
   }, [blog, title, content, coverImage, category, createBlog, updateBlog])
 
-  // Auto-save effect
+  // Auto-save effect — only auto-save if blog already exists (prop or created)
   useEffect(() => {
     if (autoSaveTimeout.current) {
       clearTimeout(autoSaveTimeout.current)
     }
 
-    if (title.trim() && content.length > 0) {
+    // Only auto-save for existing blogs, not brand-new unsaved posts
+    if (title.trim() && content.length > 0 && (blog || createdBlogId.current)) {
       autoSaveTimeout.current = setTimeout(() => {
         savePost(blog?.status || 'draft')
       }, 2000)
@@ -100,8 +116,9 @@ export function BlogEditor({ blog, onBack }: BlogEditorProps) {
 
   const handleContentChange = (newContent: ContentBlock[]) => {
     setContent(newContent)
-    if (blog) {
-      updateBlogContent(blog.id, newContent)
+    const id = blog?.id || createdBlogId.current
+    if (id) {
+      updateBlogContent(id, newContent)
     }
   }
 
