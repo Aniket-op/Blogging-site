@@ -7,6 +7,9 @@ import { getAllCategories } from '@/lib/db/categories'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 
+// Force dynamic rendering so Firebase data is fetched on every request
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
   const [blogs, categories] = await Promise.all([
     getPublishedBlogs(),

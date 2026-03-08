@@ -5,6 +5,9 @@ import { BlogCard } from '@/components/blog/blog-card'
 import { getBlogsByCategory } from '@/lib/db/blogs'
 import { getAllCategories } from '@/lib/db/categories'
 
+// Force dynamic rendering so Firebase data is fetched on every request
+export const dynamic = 'force-dynamic'
+
 interface CategoryPageProps {
   params: Promise<{ name: string }>
 }
